@@ -23,6 +23,23 @@ def get_data_from_db(conn_str:str, table_name:str, query:str):
         col_names.append(str(column_desc[0]))
     return rows, col_names
 
+def save_data_to_db(conn_str:str, table_name:str, **fields:dict):
+    '''
+    Insert data into db table
+
+    :param conn_str: - setting for connection to db
+    :param table_name: - name of table
+    :param fields: - dict with database values
+    :return: - Inserted message
+    '''
+    inserted_values: str = 'NULL,' + ','.join(map(lambda param: "'" + str(param) + "'", fields.values()))
+    template_query: str = f'INSERT INTO {table_name} VALUES({inserted_values});'
+    cnxn: pyodbc.Connection = pyodbc.connect(conn_str)
+    cursor: pyodbc.Cursor = cnxn.cursor()
+    cursor.execute(template_query)
+    cursor.commit()
+    return 'Inserted'
+
 def save_table_in_file(path:str, table_name:str,
                        col_names:List[str],
                        table_rows:List[str]):
